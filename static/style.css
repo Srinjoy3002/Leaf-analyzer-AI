@@ -194,6 +194,7 @@ select {
   border-radius: 6px;
   border: none;
   font-size: 14px;
+  padding: 48px
 }
 
 /* === Results === */
@@ -608,3 +609,4 @@ footer {
     height: 180px !important;
   }
 }
+

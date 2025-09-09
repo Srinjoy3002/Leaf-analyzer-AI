@@ -1,0 +1,610 @@
+
+/* === General Page Styles === */
+:root {
+  --bg-1: #0f172a;
+  --bg-2: #152238;
+  --text: #e6f1ff;
+  --accent: #00ffc3;
+  --accent-2: #8dffb6;
+  --glass-bg: rgba(255, 255, 255, 0.06);
+  --glass-brd: rgba(255, 255, 255, 0.12);
+}
+
+/* Background */
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: radial-gradient(circle at 30% -10%, var(--bg-2), var(--bg-1) 60%);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* NAVBAR */
+.navbar {
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: rgba(15, 23, 42, 0.352);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  padding: 14px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 1000;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo img {
+  height: auto;
+  max-height: 42px;
+  /* maximum height on large screens */
+  max-width: 100%;
+  /* prevent overflow */
+  width: auto;
+  display: block;
+}
+
+.logo span {
+  font-size: 1rem;
+  font-weight: 100;
+  background: linear-gradient(90deg, #00ffc3, #a8ff60);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 16px rgba(0,255,195,0.4);
+}
+
+.nav-links {
+  display: flex;
+  gap: 80px;
+}
+
+.nav-links a {
+  text-decoration: none;
+  font-weight: 600;
+  color: var(--text);
+  transition: color .3s ease;
+}
+
+.nav-links a:hover { color: var(--accent); }
+
+  /* Hamburger */
+    .hamburger {
+  display: none;
+  flex-direction: column;
+  cursor: pointer;
+  gap: 5px;
+  z-index: 1100; /* stay above menu */
+}
+
+.hamburger span {
+  width: 24px;
+  height: 3px;
+  background: var(--text);
+  border-radius: 2px;
+  transition: all 0.4s ease;
+}
+
+
+/* Mobile menu */
+    .mobile-menu {
+      position: fixed;
+      top: 60px;
+      right: -100%;
+      background: rgba(15, 23, 42, 0.356);
+      backdrop-filter: blur(10px);
+      width: 200px;
+      padding: 20px;
+      border-radius: 12px 0 0 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      transition: right 0.4s ease;
+      z-index: 999;
+    }
+    .mobile-menu.open { right: 0; }
+    .mobile-menu a {
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .mobile-menu a:hover { color: var(--accent); }
+
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+    }
+    .hamburger.active span:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+.hamburger.active span:nth-child(2) {
+  opacity: 0;
+}
+.hamburger.active span:nth-child(3) {
+  transform: rotate(-45deg) translate(6px, -6px);
+}
+
+
+/* === Dashboard Layout === */
+.dashboard {
+  flex: 1;
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-start;
+  margin: 40px;
+  gap: 20px;
+}
+
+/* === Cards === */
+.card {
+  flex: 1;
+  background: rgba(255,255,255,0.05);
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+  min-height: 300px;
+}
+
+.upload-card {
+  text-align: center;
+  border: 2px dashed rgba(255,255,255,0.2);
+  transition: 0.3s;
+}
+
+.upload-card.dragover {
+  background: rgba(76, 175, 80, 0.2);
+}
+
+#preview {
+  margin-top: 15px;
+  max-width: 100%;
+  border-radius: 12px;
+  display: none;
+}
+
+/* === Buttons === */
+button {
+  margin-top: 15px;
+  background: #00897b;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.3s;
+}
+
+button:hover {
+  background: #00796b;
+}
+
+/* === Plant Selector === */
+select {
+  margin-top: 10px;
+  padding: 8px;
+  border-radius: 6px;
+  border: none;
+  font-size: 14px;
+}
+
+/* === Results === */
+.status {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+.healthy { color: #4caf50; }
+.unhealthy { color: #e57373; }
+
+/* Placeholder */
+.placeholder {
+  text-align: center;
+  padding: 40px 20px;
+  color: #b0bec5;
+  font-style: italic;
+  border: 2px dashed rgba(255,255,255,0.1);
+  border-radius: 12px;
+  background: rgba(255,255,255,0.03);
+}
+.placeholder .small {
+  font-size: 13px;
+  color: #90a4ae;
+  margin-top: 5px;
+}
+
+/* Progress bars */
+.bar {
+  margin: 10px 0;
+}
+.bar span {
+  font-size: 14px;
+}
+.progress {
+  background: rgba(255,255,255,0.15);
+  height: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+  margin: 5px 0;
+}
+.progress div {
+  height: 100%;
+  background: #4caf50;
+  transition: width 0.5s;
+}
+
+/* AI Chat Suggestion */
+.chat-box {
+  margin-top: 15px;
+  padding: 15px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.chat-msg {
+  background: rgba(76, 175, 80, 0.2);
+  padding: 10px;
+  border-radius: 10px;
+  animation: fadeIn 0.5s;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Spinner */
+.spinner {
+  margin: 20px auto;
+  border: 4px solid rgba(255,255,255,0.2);
+  border-top: 4px solid #4caf50;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* === Footer === */
+footer {
+  background: rgba(0,0,0,0.6);
+  text-align: center;
+  padding: 10px;
+  font-size: 13px;
+  color: #ccc;
+}
+/* === Circular Progress Bars === */
+.circle-metrics {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+
+.circle {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: conic-gradient(#4caf50 0deg, rgba(255, 255, 255, 0.1) 0deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    position: relative;
+}
+
+.circle .inner-text {
+    position: absolute;
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff;
+}
+
+.circle p {
+    margin-top: 110px;
+    font-size: 12px;
+    color: #ccc;
+    text-align: center;
+}/* === Circular Progress Bars === */
+.circle-metrics {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+
+.circle {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: conic-gradient(#4caf50 0deg, rgba(255, 255, 255, 0.1) 0deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    position: relative;
+}
+
+.circle .inner-text {
+    position: absolute;
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff;
+}
+
+.circle p {
+    margin-top: 110px;
+    font-size: 12px;
+    color: #ccc;
+    text-align: center;
+}
+
+.thresholds-card .circle {
+    background: conic-gradient(#2196f3 0deg, rgba(255, 255, 255, 0.1) 0deg);
+}
+/* AI Chat Suggestion - Improved */
+.chat-box {
+    margin-top: 15px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.07);
+    border-radius: 15px;
+    font-size: 14px;
+    line-height: 1.6;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+    transition: transform 0.2s ease, background 0.3s ease;
+    overflow: hidden;
+}
+
+.chat-box:hover {
+    background: rgba(255, 255, 255, 0.12);
+    transform: translateY(-2px);
+}
+
+.chat-msg {
+    background: rgba(76, 175, 80, 0.2);
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    animation: fadeIn 0.4s;
+    position: relative;
+    border-left: 4px solid #4caf50;
+}
+
+.chat-msg b {
+    color: #fff;
+}
+
+.chat-msg::before {
+    content: "💡";
+    position: absolute;
+    left: 10px;
+    top: 12px;
+    font-size: 16px;
+}
+/* Floating input for plant correction */
+.floating-input {
+  position: relative;
+  margin-top: 10px;
+  width: 100%;
+}
+
+/* Floating input for plant correction */
+.floating-input {
+  position: relative;
+  margin: 10px auto 0;
+  /* center horizontally with auto left/right */
+  width: 90%;
+  /* updated width */
+}
+
+/* Ensure box-sizing includes padding and border */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Floating input for plant correction */
+.floating-input {
+  position: relative;
+  margin: 10px auto 0;
+  width: 90%;
+}
+
+.floating-input input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.floating-input input:focus {
+  border-color: #4caf50;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.floating-input input::placeholder {
+  color: transparent;
+}
+
+.floating-input label {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  transform: translateY(-50%);
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 14px;
+  pointer-events: none;
+  transition: all 0.2s ease;
+}
+
+.floating-input input:focus+label,
+.floating-input input:not(:placeholder-shown)+label {
+  top: -8px;
+  left: 10px;
+  font-size: 12px;
+  color: #4caf50;
+  background: rgba(15, 32, 39, 1);
+  padding: 0 4px;
+  border-radius: 4px;
+}
+
+/* Update button style */
+.update-btn {
+  display: block;
+  margin: 8px auto 0;
+  width: 90%;
+  /* same as input width */
+  padding: 12px 0;
+  border-radius: 8px;
+  border: none;
+  background: #00c2a0;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s ease;
+  text-align: center;
+  font-size: 14px;
+}
+
+.update-btn:hover {
+  background: #9ef5ff;
+}
+/* === Video Card === */
+.video-card {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+  min-height: 300px;
+}
+
+.video-card iframe {
+  border-radius: 12px;
+  width: 100%;
+  height: 220px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}.video-box {
+  margin-top: 20px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.video-box h3 {
+  font-size: 16px;
+  margin-bottom: 10px;
+  color: #fff;
+}
+/* Column wrapper for stacked cards */
+.card-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  /* space between ranges box & video box */
+}
+/* === Responsive Design === */
+@media (max-width: 1024px) {
+  .dashboard {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .card {
+    flex: 1 1 45%;
+    min-width: 300px;
+  }
+}
+@media (max-width: 480px) {
+  .agrinova-logo {
+    height: 20px;
+    /* force smaller logo on phones */
+  }
+
+  .title {
+    font-size: 1rem;
+  }
+}
+
+
+@media (max-width: 180px) {
+  .logo img {
+    height: 10px;
+  }
+
+  .title {
+    font-size: 1rem;
+  }
+}
+@media (max-width: 768px) {
+  .dashboard {
+    flex-direction: column;
+    align-items: center;
+    margin: 20px;
+  }
+  .card {
+    width: 100%;
+    max-width: 500px;
+  }
+  .circle-metrics {
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+  .circle {
+    margin-bottom: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar {
+    font-size: 16px;
+    padding: 10px 15px;
+  }
+  .card {
+    padding: 15px;
+    border-radius: 12px;
+  }
+  button {
+    width: 100%;
+    font-size: 13px;
+    padding: 10px;
+  }
+  .floating-input input {
+    font-size: 13px;
+    padding: 10px 12px;
+  }
+  .floating-input label {
+    font-size: 12px;
+  }
+  .chat-box {
+    font-size: 13px;
+    padding: 12px;
+  }
+  .circle {
+    width: 70px;
+    height: 70px;
+  }
+  .circle .inner-text {
+    font-size: 12px;
+  }
+  .circle p {
+    font-size: 11px;
+    margin-top: 85px;
+  }
+  iframe, video, img {
+    height: 180px !important;
+  }
+}

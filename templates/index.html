@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <!-- NAVBAR -->
+  <div class="navbar">
+    
+    <div class="header">
+      <div class="logo">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Agrinova Logo" class="agrinova-logo">
+      </div>
+    </div>
+    <div class="nav-links">
+      <a href="https://srinjoy3002.github.io/AgriNova_webapp2.0/index.html">Home</a>
+      <a href="https://srinjoy3002.github.io/AgriNova_webapp2.0/weather.html">Weather</a>
+      <a href="#">Leaf analyzer AI</a>
+      <!-- <a href="#">Settings</a>
+       <a href="signup.html">Sign up</a> -->
+    </div>
+    <div class="hamburger" onclick="toggleMenu(this)">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="https://srinjoy3002.github.io/AgriNova_webapp2.0/index.html">Home</a>
+    <a href="https://srinjoy3002.github.io/AgriNova_webapp2.0/weather.html">Weather</a>
+    <a href="#">Leaf analyzer AI</a>
+    <!-- <a href="#">Settings</a>
+    <a href="signup.html">Sign up</a> -->
+  </div>
+
+
+    <div class="dashboard">
+        <!-- Upload + Measured Values -->
+        <div class="card upload-card" id="dropArea">
+            <h2>Upload Leaf</h2>
+            <p>Upload a leaf photo, AI will auto-detect the plant type.</p>
+            <input type="file" id="fileInput" accept="image/*" hidden>
+            <button onclick="fileInput.click()">📂 Choose File</button>
+            <img id="preview" />
+
+            <!-- Circular metrics -->
+            <div class="circle-metrics">
+                <div class="circle" id="yellowCircle">
+                    <div class="inner-text">0%</div>
+                    <p>Yellow</p>
+                </div>
+                <div class="circle" id="brownCircle">
+                    <div class="inner-text">0%</div>
+                    <p>Brown</p>
+                </div>
+                <div class="circle" id="solidityCircle">
+                    <div class="inner-text">0%</div>
+                    <p>Solidity</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div class="card result-card">
+            <h2>Results</h2>
+            <div id="result" class="placeholder">
+                <p>📸 No analysis yet</p>
+            </div>
+
+            <!-- Plant correction -->
+            <div id="plantCorrection" style="display:none; margin-top:15px;">
+                <p>🌿 Detected Plant: <b id="detectedPlant">Unknown</b></p>
+
+                <!-- Floating input -->
+                <div class="floating-input">
+                    <input type="text" id="correctPlant" placeholder=" " />
+                    <label for="correctPlant">Type correct plant name</label>
+                </div>
+
+                <button class="update-btn" onclick="updateSuggestion()">🔄 Update</button>
+            </div>
+
+            <div id="aiSuggestion" class="chat-box"></div>
+            <button id="downloadBtn" style="display:none;" onclick="downloadReport()">📑 Download Report</button>
+        </div>
+
+        <!-- Column for Ranges + Video -->
+        <div class="card-column">
+            <!-- AI Recommended Ranges -->
+            <div class="card thresholds-card">
+                <h2>AI Recommended Healthy Ranges</h2>
+                <div class="circle-metrics">
+                    <div class="circle" id="yellowSafe">
+                        <div class="inner-text">--%</div>
+                        <p>Yellow Max</p>
+                    </div>
+                    <div class="circle" id="brownSafe">
+                        <div class="inner-text">--%</div>
+                        <p>Brown Max</p>
+                    </div>
+                    <div class="circle" id="soliditySafe">
+                        <div class="inner-text">--%</div>
+                        <p>Solidity Min</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 📺 Video Player Card -->
+            <div class="card video-card">
+                <h2>Watch Related Video</h2>
+                <div class="floating-input">
+                    <input type="text" id="videoUrl" placeholder=" " />
+                    <label for="videoUrl">Enter Stream / Video URL</label>
+                </div>
+                <button class="update-btn" onclick="loadStream()">▶️ Load Video</button>
+                <div id="videoContainer" style="margin-top:15px; display:none;">
+                    <video id="customVideo" width="100%" height="220" controls></video>
+                    <img id="mjpegStream" style="width:100%; height:220px; display:none;" />
+                    <iframe id="ytFrame" width="100%" height="220" frameborder="0" allowfullscreen
+                        style="display:none;"></iframe>
+                </div>
+            </div>
+        </div>
+        <script>
+  function toggleMenu(hamburger) {
+    const menu = document.getElementById("mobileMenu");
+    menu.classList.toggle("open");
+
+    // Optional: animate hamburger into "X"
+    hamburger.classList.toggle("active");
+  }
+</script>
+
+
+
+        <script>
+            const fileInput = document.getElementById("fileInput");
+            const preview = document.getElementById("preview");
+            const resultDiv = document.getElementById("result");
+            const aiBox = document.getElementById("aiSuggestion");
+            let lastResult = null;
+
+            fileInput.addEventListener("change", () => previewFile(fileInput.files[0]));
+
+            function previewFile(file) {
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = e => { preview.src = e.target.result; preview.style.display = "block"; };
+                    reader.readAsDataURL(file);
+                    uploadImage(file);
+                }
+            }
+
+            function setCircleProgress(id, value, safeMax, safeMin = null) {
+                const circle = document.getElementById(id);
+                const innerText = circle.querySelector(".inner-text");
+                innerText.textContent = value + "%";
+                let color = "#4caf50";
+                if ((safeMax && value > safeMax) || (safeMin && value < safeMin)) color = "#e57373";
+                circle.style.background = `conic-gradient(${color} ${value * 3.6}deg, rgba(255,255,255,0.1) 0deg)`;
+            }
+
+            function setThresholdCircle(id, value) {
+                const circle = document.getElementById(id);
+                const innerText = circle.querySelector(".inner-text");
+                innerText.textContent = value + "%";
+                circle.style.background = `conic-gradient(#2196f3 ${value * 3.6}deg, rgba(255,255,255,0.1) 0deg)`;
+            }
+
+            async function uploadImage(file) {
+                const formData = new FormData();
+                formData.append("file", file);
+                resultDiv.innerHTML = "<div class='spinner'></div><p>Analyzing...</p>";
+                aiBox.innerHTML = "";
+
+                const response = await fetch("/analyze", { method: "POST", body: formData });
+                const data = await response.json();
+
+                if (data.error) {
+                    resultDiv.innerHTML = "❌ " + data.error;
+                } else {
+                    lastResult = data;
+                    document.getElementById("downloadBtn").style.display = "block";
+                    document.getElementById("plantCorrection").style.display = "block";
+                    document.getElementById("detectedPlant").innerText = data.plant;
+
+                    resultDiv.innerHTML = `<div>🌿 Plant: <b>${data.plant}</b></div>`;
+                    aiBox.innerHTML = `<div class="chat-msg"><b>💡 Suggestion:</b><br>${data.suggestion}</div>`;
+
+                    setCircleProgress("yellowCircle", data.yellow_spots, data.thresholds.yellow_max);
+                    setCircleProgress("brownCircle", data.brown_spots, data.thresholds.brown_max);
+                    setCircleProgress("solidityCircle", data.solidity, null, data.thresholds.solidity_min);
+
+                    setThresholdCircle("yellowSafe", data.thresholds.yellow_max);
+                    setThresholdCircle("brownSafe", data.thresholds.brown_max);
+                    setThresholdCircle("soliditySafe", data.thresholds.solidity_min);
+                }
+            }
+
+            async function updateSuggestion() {
+                const correctName = document.getElementById("correctPlant").value.trim();
+                if (!correctName || !lastResult) return;
+
+                const response = await fetch("/correct-plant", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        plant: correctName,
+                        yellow_spots: lastResult.yellow_spots,
+                        brown_spots: lastResult.brown_spots,
+                        solidity: lastResult.solidity
+                    })
+                });
+
+                const data = await response.json();
+                lastResult = { ...lastResult, ...data };
+
+                document.getElementById("detectedPlant").innerText = data.plant;
+                aiBox.innerHTML = `<div class="chat-msg"><b>💡 Suggestion:</b><br>${data.suggestion}</div>`;
+
+                setCircleProgress("yellowCircle", lastResult.yellow_spots, data.thresholds.yellow_max);
+                setCircleProgress("brownCircle", lastResult.brown_spots, data.thresholds.brown_max);
+                setCircleProgress("solidityCircle", lastResult.solidity, null, data.thresholds.solidity_min);
+
+                setThresholdCircle("yellowSafe", data.thresholds.yellow_max);
+                setThresholdCircle("brownSafe", data.thresholds.brown_max);
+                setThresholdCircle("soliditySafe", data.thresholds.solidity_min);
+            }
+
+            async function downloadReport() {
+                const response = await fetch("/download-report", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(lastResult)
+                });
+                const data = await response.json();
+                if (data.file) window.open("/get-report/" + data.file, "_blank");
+            }
+
+
+            function loadStream() {
+                const url = document.getElementById("videoUrl").value.trim();
+                const videoContainer = document.getElementById("videoContainer");
+                const videoPlayer = document.getElementById("customVideo");
+                const mjpegStream = document.getElementById("mjpegStream");
+                const ytFrame = document.getElementById("ytFrame");
+
+                if (!url) {
+                    alert("Please enter a video or stream URL");
+                    return;
+                }
+
+                // Reset
+                videoPlayer.style.display = "none";
+                mjpegStream.style.display = "none";
+                ytFrame.style.display = "none";
+                videoPlayer.src = "";
+                mjpegStream.src = "";
+                ytFrame.src = "";
+
+                // Case 1: YouTube link
+                if (url.includes("youtube.com") || url.includes("youtu.be")) {
+                    let videoId = "";
+                    if (url.includes("youtu.be")) {
+                        videoId = url.split("youtu.be/")[1];
+                    } else {
+                        const urlParams = new URL(url).searchParams;
+                        videoId = urlParams.get("v");
+                    }
+                    ytFrame.src = `https://www.youtube.com/embed/${videoId}`;
+                    ytFrame.style.display = "block";
+                }
+                // Case 2: Flask/ngrok MJPEG stream
+                else if (url.endsWith("/video_feed")) {
+                    mjpegStream.src = url;
+                    mjpegStream.style.display = "block";
+                }
+                // Case 3: Direct video (mp4/webm/m3u8, etc.)
+                else {
+                    videoPlayer.src = url;
+                    videoPlayer.style.display = "block";
+                }
+
+                videoContainer.style.display = "block";
+            }
+
+
+        </script>
+</body>
+
+</html>
